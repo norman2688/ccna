@@ -28,7 +28,7 @@ int e1/0
 R4
 config t
  no router eigrp 100
- Task1: LoadBalacing DHCP Server:
+ Task1: LoadBalancing DHCP Server:
  D1:
 CONFIG T
 ip dhcp excluded-add 10.2.1.1 10.2.1.99
