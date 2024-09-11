@@ -59,6 +59,7 @@ int e1/0
    switchport mode access
    switchport access vlan 20
    do show vlan brief
+
 A1: lipat vlan from v1 to v10
 config t
 int e0/0
