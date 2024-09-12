@@ -1,0 +1,376 @@
+192.168.101.132
+
+da4-fundamentals of network security
+task1: osi layer mastery
+7: app
+
+20.189
+
+
+task2: implementing basic cisco network using access-control list
+standard acl: 1-99, job block
+
+conf t
+no access-list 1
+access-list 1 permit 10.12.0.0 0.0.255.255
+access-list 1 permit 10.22.0.0 0.0.255.255
+access-list 1 permit 10.32.0.0 0.0.255.255
+
+int g0/0/1
+ip access-group 1 in
+do sh ip access-list 1
+
+---another version--
+
+conf t
+no ip access-list standard KAMILANG
+IP access-list standard KAMILANG
+
+permit 10.12.0.0 0.0.255.255
+permit 10.22.0.0 0.0.255.255
+permit 10.32.0.0 0.0.255.255
+
+int g0/0/1
+ip access-group KAMILANG in
+do sh ip access-list KAMILANG
+
+
+
+conf t
+no ip access-list standard KAMILANG
+IP access-list standard KAMILANG2
+
+permit 10.41.0.0 0.0.255.255
+permit 10.22.0.0 0.0.255.255
+permit 10.32.0.0 0.0.255.255
+
+int g0/0/1
+ip access-group KAMILANG2 in
+do sh ip access-list KAMILANG2
+
+
+conf t
+no ip access-list standard KAMILANG2
+IP access-list standard KAMILANG3
+
+permit 10.22.0.0 0.0.255.255
+permit 10.31.0.0 0.0.255.255
+
+int g0/0/1
+ip access-group KAMILANG2 in
+do sh ip access-list KAMILANG3
+
+conf t
+int g0/0/1
+no ip access-group KAMILANG3 in
+do sh ip access-list
+
+
+conf t
+no ip access-list standard KAMILANG3
+IP access-list standard KAMILANG
+
+permit 10.22.0.0 0.0.255.255
+permit 10.32.0.0 0.0.255.255
+
+int g0/0/1
+no ip access-group KAMILANG4 in
+do sh ip access-list KAMILANG4
+
+give internet to edge
+config t
+ip route 0.0.0.0 0.0.0.0 200.0.0.1
+do ping 8.8.8.8
+ip domain-lookup
+ip name-server 8.8.8.8 1.1.1.1
+do ping www.cisco.com
+
+task4: block all porn sites: trivia:
+all the porn sites in the world is owne by 5 companies
+
+conf t
+no IP access-list Standard NOPORN
+IP access-list Standard NOPORN
+DENY 66.254.0.0 0.0.255.255
+DENY 104.21.0.0 0.0.255.255
+DENY 68.235.0.0 0.0.255.255
+DENY 104.21.0.0 0.0.255.255
+DENY 208.77.20.0 0.0.255.255
+DENY 172.67.133.0 0.0.255.255
+PERMIT ANY
+INT GI 0/0/1
+IP ACCESS-GROUP NOPORN IN 
+DO PING WWW.NBA.COM
+DO PING WWW.FACEBOOK.COM
+DO PING WWW.PORNHUB.COM
+
+task 5: using cisco to give internet to entire buildings:
+
+bldg2: 192.168.102.20/24 GI2
+			    VPNPH GI1 -- INTERNET
+bldg3: 192.168.102.20/224 GI3
+ 
+vpnph:
+config t
+no logging console
+int gi 2
+no shut
+ip add 192.168.102.8 255.255.255.0
+line vty 0 14
+exec-timeout 0 0
+
+task2: give ip address and internet to vpnph
+conf t
+int gi 1
+no shut
+ip add 192.168.108.8 255.255.255.0
+int gi 3
+no shut
+ip add 192.168.103.8 255.255.255.0
+ip route 0.0.0.0 0.0.0.0 192.168.108.2
+ip name-server 8.8.8.8 1.1.1.1
+do ping 8.8.8.8
+
+task3: network address translation/ nat: give internet to entire building/company:
+bldg2 will dynamic nat using gi1
+bldg3 will use static nat mapping using 192.168.108.69
+config t
+access-list 8 permit 192.168.102.0 0.0.0.255
+access-list 8 permit 192.168.103.0 0.0.0.255
+int gi 1
+ip nat outside
+int gi 2
+ip nat inside
+int gi3
+ip nat inside
+ip nat inside source static 192.168.103.20 192.168.108.69
+ip nat inside source list 8 interface gi 1 overload
+
+task5: protecting webapps and website with basic firewall config
+
+config t
+int Gi 3
+ no shut
+ ip add 192.168.103.8 255.255.255.0
+ ip add 192.168.103.9 255.255.255.0 Secondary
+service finger
+service tcp-small-servers
+service udp-small-servers
+ip dns server
+ip http server
+ip http secure-server
+!Make Ping EASY
+ip host www.web8.com 192.168.103.8
+ip host www.web9.com 192.168.103.9
+
+ex.1 create a firewall policy named bantayweb1 to open
+www.web8.com has http and https as open
+www.web8.com has ssh and dns open
+formula:  protocol hacker victim port:
+      tcp,udp,icmp,ip any host
+conf t
+no ip access-list extended BANTAYWEB1
+ip access-list extended BANTAYWEB1
+permit tcp any host www.web8.com eq 80 log
+permit tcp any host www.web8.com eq 443 log
+permit tcp any host www.web9.com eq 22 log
+permit tcp any host www.web9.com eq 53 log
+int gi3
+ip access-group BANTAYWEB1 in
+do sh ip access-list BANTAYWEB1
+
+
+=======================================
+
+conf t
+no ip access-list extended BLUETEAM2
+ip access-list extended BLUETEAM2
+permit tcp any host www.web8.com eq 53 log
+permit tcp any host www.web8.com eq 22 log
+permit tcp any host www.web8.com eq 80 log
+
+permit tcp any host www.web9.com eq 22 log
+permit tcp any host www.web9.com eq 23 log
+permit tcp any host www.web9.com eq 443 log
+int gi3
+ip access-group BLUETEAM2 in
+do sh ip access-list BLUETEAM2
+
+================================================
+
+conf t
+no ip access-list extended BLUETEAM3
+ip access-list extended BLUETEAM3
+permit tcp any host www.web8.com eq 23 log
+permit tcp any host www.web8.com eq 22 log
+permit tcp any host www.web8.com eq 53 log
+permit tcp any host www.web8.com eq 80 log
+
+permit tcp any host www.web9.com eq 443 log
+permit icmp any host www.web9.com log
+int gi3
+ip access-group BLUETEAM3 in
+do sh ip access-list BLUETEAM3
+
+=========================================
+
+
+======================================================
+http and ssh
+
+conf t
+no ip access-list extendend BANTAYWEB1
+ip access-list extended BAMTAYWEB1
+
+permit tcp any host www.web8.com eq 80 log
+permit tcp any host www.web8.com eq 443 log
+
+
+permit tcp any host www.web9.com eq 53 log
+permit tcp any host www.web9.com eq 443 log
+permit tcp any host www.web9.com eq 22 log
+int gi3
+ip access-group BLUETEAM4 in
+do sh ip access-list BLUETEAM4
+
+
+
+=============
+nmap -Pn -v www.web8.com
+
+netstart -rn
+================================
+1.a:c:0:0:/64
+2.::
+3.fe80:0:a:0:0:f/64
+4.2002:65:0:3000::/64
+5.2002:
+
+==================================
+
+task8: ipv6 subnetting 
+ex1: subnet fafa:caca:dada:bebe::/64 into three offices:
+rivan cai method: convert, add,ichambamo
+convert: three offices is 2 bits
+addto orig/: /64 + /2 = /66
+ichambamo: 
+1st office: 8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+2nd office:     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+3rd office:     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+ex1: subnet fafa:caca:dada:bebe::/64 into 50 offices:
+rivan cai method: convert, add,ichambamo
+convert: three offices is 6 bits
+addto orig/: /64 + /6 = /70
+ichambamo: 
+1st office: 8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1 8 4 2 1
+2nd office:     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+3rd office:     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+ipv6 address face:cafe:face:cafe:0008:/64 5000 office
+/64+ /13bits 
+= /77
+8421 8421 8421 8|421 8421 8421
+0000 0000 0000 0		0000
+0000 0000 0000 1		0008
+0000 0000 0001 0		00
+0000 0000 0001 1
+0000 0000 0001 0
+0000 0000 0010 1
+0000 0000 0011 0
+0000 0000 0101 0
+0000 0000 1010 1
+0000 0001 0101 0
+
+
+
+
+
+ex6: subnet feco:feco:aabb:2000:/67 into 6 offices
+
+conf t
+int lo0
+ipv6 address fec0:fec0:aabb:2000::/67
+ipv6 address fec0:feco:aabb:4000::1/67
+
+/64+ /3bits
+/67bit
+
+842|1 8421 
+001   2000
+010   4000
+011   6000
+100   8000
+101   a000
+110   c000
+
+============================================
+task8: ipv6 subnetting 
+ex1: subnet fafa:caca:dada:bebe::/64 into three offices:
+rivan cai method: convert, add,ichambamo
+
+/64 + /3bits
+/67
+8421  
+000  0000
+001  0020
+010  0400
+100  8000
+101  a000
+110  
+
+examno.2: IPV4 AND IPV6 DUAL STACK SUBNETTED CONFIG: 2HIT COMBO
+EX.8: DESIGN AND CONFIGURE A NETWORK FOR 10.0.0.0/8 AND fc00:abef:deef::/48 into 100 offices each.
+ 
+fc00:abef:deef::/48
+/48 +/7bits
+/55
+
+8421 8421 
+0000 000  0000
+0000 001  0020
+0000 010  0040
+0000 011  0060
+0000 101  00a0
+
+10.0.0.0/8
+c: 100 is 7bits
+A:/8 + /7 = /15 2nd, 2i
+
+config t
+int l0 1
+ip address 10.2.0.1 255.255.255.252
+ipv6 address fc00:abef:deef:0000::1/55
+
+
+configuring ssh on cisco:
+conf t
+ip domain-name rivanccna.com
+crypto key generate-rsa
+1024
+ip ssh version 2
+ip ssh time-out 120
+end
+
+security task n0.10: ftp: file transfer protocol
+ftp is network file storage system 
+
+configure  cisco to use american time
+
+sh ntp association
+assignment w/loopback
+1.)
+compute and configure: dual stack:
+10.0.0.0/8
+         11b
+
+AND    into 1500 subnets
+cafe:cafe:cafe:face:/48
+
+
+
+1.)
+compute and configure: dual stack:
+10.0.0.0/8
+AND    into 100 subnets
+cafe:cafe:cafe:face:/48
