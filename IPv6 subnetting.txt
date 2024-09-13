@@ -1,0 +1,108 @@
+IPv6 Subnetting
+
+ex. 2001:0db8:ac01:face:0000:0000:0000:af12/64  for 1600 users
+
+Convert:
+	Convert the given 1600 users to bits
+	
+	2048	1024	512		256		128		64		32		16		8		4		2		1	=bit increment
+	0		0		0		0		0		0		0		0		0		0		0		0	=bits
+	12		11		10		9		8		7		6		5		4		3		2		1	=bit number
+	
+	1600 is located between between bits 11(1024bits) and 12(2048bits)
+	
+	Therefore, 1600 users = 11 bits
+	
+	
+Add:
+	Add the bits we computed to the given slash(/64)
+	
+	/64 + 11 bits = 75
+	
+	/75 will be our new slash
+	
+Ichamba
+
+	Now we have to locate our new slash(/75) within the given IPv6 address
+	
+	1		2		3		4		5		6		7		8	=hextet number
+	2001 :	0db8 :	ac01 :	face :	0000 :	0000 :	0000 :	af12
+	
+	!!!Note, each digit in an IPv6 address contains 4 bits because it's a hexadecimal 
+		Ex. the number 2001 in 2001:0db8: can be expanded to:
+		:	2		0		0		1		:
+		:	0010	0000	0000	0001	:
+			/4		/8		/12		/16
+		
+		Knowing this, we can start finding our new slash (/75) in the IPv6 address
+	1		2		3		4		5		=hextet# number
+	2001 :	0db8 :	ac01 :	face :	0000 :
+	/16		/32		/48		/64		/80
+	
+	therefore /75 is located somewhere in the 5th hextet, which means we have to expand the digits inside the 5th hextet into its bit form
+	
+	:	0		0		0		0
+	:	0000	0000	0000	0000	:
+	
+	then we can start counting
+	
+	:	0		0		0		0
+	:	0000	0000	0000	0000	:
+		/68		/72		/76		/80
+		
+	we'll  then draw a line locating /75
+	
+	:	0000	0000	000|0	0000	:
+	
+	from here we'll need to count in binary, also remember the increments 8 4 2 1 for each bit
+		8421	8421	842 1	8421	=increment
+	:	0000	0000	000|0	0000	:	=5th hextet in bit format
+	___
+		0000	0000	000|0	0000		1st Network
+		0000	0000	001|0	0000		2nd Network
+		0000	0000	010|0	0000		3rd Network
+		0000	0000	011|0	0000
+		0000	0000	100|0	0000
+		0000	0000	101|0	0000
+		0000	0000	110|0	0000
+		0000	0000	111|0	0000
+		0000	0001	000|0	0000
+		0000	0001	001|0	0000
+		...and so on,
+	
+	let's take each network and convert them back to their hexadecimal format
+	
+		8421	8421	842 1	8421	=increment
+	:	0000	0000	000|0	0000	:	=5th hextet in bit format
+	___
+		0000	0000	000|0	0000		=	:0000:
+		0000	0000	001|0	0000		=	:0020:
+		0000	0000	010|0	0000		=	:0040:
+		0000	0000	011|0	0000		=	:0060:
+		0000	0000	100|0	0000		=	:0080:
+		0000	0000	101|0	0000		=	:00A0:
+		0000	0000	110|0	0000		=	:00C0:
+		0000	0000	111|0	0000		=	:00E0:
+		0000	0001	000|0	0000		=	:0100:
+		0000	0001	001|0	0000		=	:0120:
+		...and so on,
+	
+	then remember to place our computed network in the correct hextet (5th)
+	
+									5th hextet
+	2001 :	0db8 :	ac01 :	face :	0000 :	0000 :	0000 :	af12
+	2001 :	0db8 :	ac01 :	face :	0020 :	0000 :	0000 :	af12
+	2001 :	0db8 :	ac01 :	face :	0040 :	0000 :	0000 :	af12
+	2001 :	0db8 :	ac01 :	face :	0060 :	0000 :	0000 :	af12
+	2001 :	0db8 :	ac01 :	face :	0080 :	0000 :	0000 :	af12
+	2001 :	0db8 :	ac01 :	face :	00A0 :	0000 :	0000 :	af12
+	
+	compressed ver
+
+	2001:db8:ac01:face::af12/75	
+	2001:db8:ac01:face:0020:af12/75
+	2001:db8:ac01:face:0040:af12/75
+	2001:db8:ac01:face:0060:af12/75
+	2001:db8:ac01:face:0080:af12/75
+	2001:db8:ac01:face:00A0:af12/75
+	
