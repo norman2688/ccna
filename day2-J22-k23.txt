@@ -92,7 +92,7 @@ ConvertIT: 2750 Agents = 12b
 SubractIT: /32 - /12b = /20-> 3rd,16i
 iPasokitSaHiwa: "iPasok 16i sa 3rd Octet"x2
 
-AccentureSubnet: 10.0.16.0/21
+AccentureSubnet: 10.0.16.0/20
 1st valid:        10.0.16.1
 lastIP/broadcast: 10.0.31.255
 NotAccenture: 10.0.32.0 /21
